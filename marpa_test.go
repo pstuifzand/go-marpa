@@ -16,13 +16,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package marpa
 
 import (
-	"fmt"
 	"testing"
 )
 
 func ActionArg0(args []string) string {
 	return args[0]
 }
+
 func ActionExprOp(args []string) string {
 	return "(" + args[0] + " " + args[1] + " " + args[2] + ")"
 }
@@ -48,6 +48,9 @@ func TestMarpa(t *testing.T) {
 	val := re.Value()
 
 	for val.Next() {
-		fmt.Printf("%s\n", val.Value())
+		e := "(((5 - 4) * 3) + 1)"
+		if val.Value() != e {
+			t.Errorf("%s != %s", val.Value(), e)
+		}
 	}
 }
