@@ -19,12 +19,15 @@ import (
 	"testing"
 )
 
-func ActionArg0(args []string) string {
+func ActionArg0(args []interface{}) interface{} {
 	return args[0]
 }
 
-func ActionExprOp(args []string) string {
-	return "(" + args[0] + " " + args[1] + " " + args[2] + ")"
+func ActionExprOp(args []interface{}) interface{} {
+	l := args[0].(string)
+	op := args[1].(string)
+	r := args[2].(string)
+	return "(" + l + " " + op + " " + r + ")"
 }
 
 func TestMarpa(t *testing.T) {

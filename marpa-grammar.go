@@ -24,7 +24,13 @@ type Grammar struct {
 	thin     *mt.Grammar
 	symbols  map[string]mt.SymbolID
 	rule_ids []mt.RuleID
-	actions  map[mt.RuleID]func([]string) string
+	actions  map[mt.RuleID]func([]interface{}) interface{}
+}
+
+type Seq struct {
+	Min       int
+	Proper    bool
+	Separator string
 }
 
 func NewGrammar() *Grammar {
@@ -33,7 +39,7 @@ func NewGrammar() *Grammar {
 	var grammar Grammar
 	grammar.thin = mt.NewGrammar(&config)
 	grammar.symbols = make(map[string]mt.SymbolID)
-	grammar.actions = make(map[mt.RuleID]func([]string) string)
+	grammar.actions = make(map[mt.RuleID]func([]interface{}) interface{})
 	return &grammar
 }
 
@@ -64,7 +70,29 @@ func (grammar *Grammar) StartRule(lhs string) {
 	return
 }
 
-func (grammar *Grammar) AddRule(lhs string, rhs []string, action func(args []string) string) {
+func (grammar *Grammar) AddSequence(lhs string, rhs string, seq Seq, action func(args []interface{}) interface{}) {
+	lhs_id := grammar.symbol(lhs)
+	rhs_id := grammar.symbol(rhs)
+	var sep_id mt.SymbolID
+
+	if seq.Separator != "" {
+		sep_id = grammar.symbol(seq.Separator)
+	} else {
+		sep_id = mt.SymbolID(-1)
+	}
+
+	flags := 0
+	if seq.Proper {
+		flags = 0x2
+	}
+
+	rule_id := grammar.thin.NewSequence(lhs_id, rhs_id, sep_id, seq.Min, flags)
+	grammar.actions[rule_id] = action
+	grammar.rule_ids = append(grammar.rule_ids, rule_id)
+	return
+}
+
+func (grammar *Grammar) AddRule(lhs string, rhs []string, action func(args []interface{}) interface{}) {
 	lhs_id := grammar.symbol(lhs)
 	rhs_ids := make([]mt.SymbolID, len(rhs))
 	for i, id := range rhs {

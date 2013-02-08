@@ -24,7 +24,7 @@ type Value struct {
 	tree  *mt.Tree
 	val   *mt.Value
 	re    *Recognizer
-	value string
+	value interface{}
 }
 
 func (val *Value) Next() bool {
@@ -33,7 +33,7 @@ func (val *Value) Next() bool {
 	for _, rule_id := range val.re.grammar.rule_ids {
 		val.val.RuleIsValuedSet(rule_id, 1)
 	}
-	stack := make([]string, 100)
+	stack := make([]interface{}, 100)
 VALUE:
 	for {
 		step_type := val.val.Step()
@@ -58,6 +58,6 @@ VALUE:
 	return b
 }
 
-func (val *Value) Value() string {
+func (val *Value) Value() interface{} {
 	return val.value
 }
