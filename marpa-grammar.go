@@ -99,7 +99,6 @@ func (grammar *Grammar) AddRule(lhs string, rhs []string, action func(args []int
 		rhs_ids[i] = grammar.symbol(id)
 	}
 	rule_id := grammar.thin.NewRule(lhs_id, rhs_ids)
-	//fmt.Printf("%d %s %#v\n", rule_id, lhs, rhs)
 	grammar.actions[rule_id] = action
 	grammar.rule_ids = append(grammar.rule_ids, rule_id)
 	return
@@ -111,6 +110,5 @@ func (grammar *Grammar) symbol(sym string) mt.SymbolID {
 		id = grammar.thin.NewSymbol()
 		grammar.symbols[sym] = id
 	}
-	//fmt.Printf("%s = %d\n", sym, id)
 	return id
 }
