@@ -27,29 +27,49 @@ type Value struct {
 	value interface{}
 }
 
+func resize(stack []interface{}, size int) []interface{} {
+	l := len(stack)
+	if l >= size {
+		return stack
+	}
+	n := make([]interface{}, size)
+	copy(n, stack)
+	return n
+}
+
 func (val *Value) Next() bool {
 	b := val.tree.Next() >= 0
 	val.val = mt.NewValue(val.tree)
 	for _, rule_id := range val.re.grammar.rule_ids {
 		val.val.RuleIsValuedSet(rule_id, 1)
 	}
-	stack := make([]interface{}, 100)
+
+	var stack []interface{}
+
 VALUE:
 	for {
 		step_type := val.val.Step()
 
 		switch step_type {
+		case mt.STEP_INITIAL:
+			stack = make([]interface{}, 1)
 		case mt.STEP_TOKEN:
-			argn := val.val.ArgN()
-			stack[argn] = val.re.tokens[val.val.TokenValue()]
+			res := val.val.Result()
+			stack = resize(stack, res+1)
+			stack[res] = val.re.tokens[val.val.TokenValue()]
 		case mt.STEP_RULE:
 			arg0 := val.val.Arg0()
+			stack = resize(stack, arg0+1)
 			argn := val.val.ArgN()
 			args := stack[arg0 : argn+1]
 			action, e := val.re.grammar.actions[val.val.Rule()]
 			if e {
 				stack[arg0] = action(args)
 			}
+		case mt.STEP_NULLING_SYMBOL:
+			res := val.val.Result()
+			stack = resize(stack, res+1)
+			stack[res] = val.re.tokens[val.val.TokenValue()]
 		case mt.STEP_INACTIVE:
 			break VALUE
 		}

@@ -36,7 +36,6 @@ func (re *Recognizer) token(token string) int {
 		re.tokensi[token] = id
 		re.token_count++
 	}
-	//fmt.Printf("%s = %d\n", token, id)
 	return id
 }
 
