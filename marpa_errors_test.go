@@ -38,7 +38,7 @@ func TestMarpaNoPrecompute(t *testing.T) {
 
 func TestMarpaNoStartRule(t *testing.T) {
 	g := NewGrammar()
-	g.StartRule("start")
+	//g.StartRule("start")
 	g.AddRule("start", []string{"expression"}, actionArg0)
 	err := g.Precompute()
 	if err == nil {
