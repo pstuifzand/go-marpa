@@ -38,7 +38,10 @@ func TestMarpa(t *testing.T) {
 	g.AddRule("expression", []string{"number"}, ActionArg0)
 	g.Precompute()
 
-	re := NewRecognizer(g)
+	re, err := NewRecognizer(g)
+	if err != nil {
+		t.Errorf("Error should not be set: grammar is precomputed")
+	}
 
 	re.Read("number", "5")
 	re.Read("op", "-")

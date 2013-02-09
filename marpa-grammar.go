@@ -16,7 +16,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package marpa
 
 import (
-	"fmt"
 	mt "github.com/pstuifzand/go-marpa-thin"
 )
 
@@ -43,17 +42,26 @@ func NewGrammar() *Grammar {
 	return &grammar
 }
 
-func (grammar *Grammar) Precompute() {
+type MarpaError struct {
+	Code mt.ErrorCode
+}
+
+func (err MarpaError) Error() string {
+	return mt.ErrStr[err.Code]
+}
+
+func (grammar *Grammar) Precompute() error {
 	if grammar.thin.Precompute() == -2 {
-		cnt := grammar.thin.EventCount()
+		return MarpaError{grammar.thin.Error()}
+		/* cnt := grammar.thin.EventCount()
 		fmt.Printf("ERRORS: %d events\n", cnt)
 		for i := 0; i < cnt; i += 1 {
 			var evt mt.Event
 			evttype := grammar.thin.Event(&evt, i)
 			fmt.Printf("event type %d\n", evttype)
-		}
+		}*/
 	}
-	return
+	return nil
 }
 
 func (grammar *Grammar) IsPrecomputed() bool {

@@ -16,6 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package marpa
 
 import (
+	"errors"
 	"fmt"
 	mt "github.com/pstuifzand/go-marpa-thin"
 )
@@ -39,13 +40,16 @@ func (re *Recognizer) token(token string) int {
 	return id
 }
 
-func NewRecognizer(grammar *Grammar) *Recognizer {
+func NewRecognizer(grammar *Grammar) (*Recognizer, error) {
+	if !grammar.IsPrecomputed() {
+		return nil, errors.New("Grammar is not precomputed. Call grammar.Precompute()")
+	}
 	thin_re := mt.NewRecognizer(grammar.thin)
 	recognizer := &Recognizer{thin_re, grammar, nil, nil, 1}
 	recognizer.tokens = make(map[int]string)
 	recognizer.tokensi = make(map[string]int)
 	thin_re.StartInput()
-	return recognizer
+	return recognizer, nil
 }
 
 func (re *Recognizer) Read(terminal, value string) {

@@ -75,7 +75,10 @@ func TestMarpaRules(t *testing.T) {
 
 	g.Precompute()
 
-	re := NewRecognizer(g)
+	re, err := NewRecognizer(g)
+	if err != nil {
+		t.Errorf("Error should not be set: grammar is precomputed")
+	}
 
 	re.Read("name", "start")
 	re.Read("bnfop", "::=")
