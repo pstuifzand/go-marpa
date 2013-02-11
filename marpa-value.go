@@ -16,9 +16,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 package marpa
 
 import (
-	//"fmt"
+	"fmt"
 	mt "github.com/pstuifzand/go-marpa-thin"
 )
+
+const DEBUG = false
 
 type Value struct {
 	tree  *mt.Tree
@@ -28,6 +30,12 @@ type Value struct {
 }
 
 func resize(stack []interface{}, size int) []interface{} {
+	size += 1
+	if DEBUG {
+		for i, s := range stack {
+			fmt.Printf("stack[%d]=%#v\n", i, s)
+		}
+	}
 	l := len(stack)
 	if l >= size {
 		return stack
@@ -55,16 +63,23 @@ VALUE:
 			stack = make([]interface{}, 1)
 		case mt.STEP_TOKEN:
 			res := val.val.Result()
-			stack = resize(stack, res+1)
+			stack = resize(stack, res)
+			if DEBUG {
+				fmt.Printf("put stack[%d] <= %s\n", res, val.re.tokens[val.val.TokenValue()])
+			}
 			stack[res] = val.re.tokens[val.val.TokenValue()]
 		case mt.STEP_RULE:
 			arg0 := val.val.Arg0()
-			stack = resize(stack, arg0+1)
 			argn := val.val.ArgN()
-			args := stack[arg0 : argn+1]
 			action, e := val.re.grammar.actions[val.val.Rule()]
 			if e {
-				stack[arg0] = action(args)
+				res := val.val.Result()
+				stack = resize(stack, res)
+				if DEBUG {
+					fmt.Printf("reduce %d <= [%d -- %d] %d\n", res, arg0, argn, val.val.Rule())
+				}
+				args := stack[arg0 : argn+1]
+				stack[res] = action(args)
 			}
 		case mt.STEP_NULLING_SYMBOL:
 			res := val.val.Result()
